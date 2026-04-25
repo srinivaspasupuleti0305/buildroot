@@ -1,0 +1,51 @@
+name: Build Buildroot (Arduino UNO Q)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y \
+            build-essential \
+            git \
+            wget \
+            unzip \
+            bc \
+            python3 \
+            rsync \
+            cpio \
+            file \
+            libncurses-dev \
+            flex \
+            bison
+
+      - name: Cache downloads (dl/)
+        uses: actions/cache@v4
+        with:
+          path: dl
+          key: buildroot-dl-${{ hashFiles('**/*.mk') }}
+          restore-keys: |
+            buildroot-dl-
+
+      - name: Configure (Arduino UNO Q)
+        run: make arduino_uno_q_defconfig
+
+      - name: Build
+        run: make -j$(nproc)
+
+      - name: Upload images
+        uses: actions/upload-artifact@v4
+        with:
+          name: arduino-uno-q-images
+          path: output/images/
