@@ -26,7 +26,11 @@ cat "${IMAGES_DIR}/u-boot.bin.gz" "${IMAGES_DIR}/qrb2210-arduino-imola.dtb" > "$
 
 # Create empty ramdisk file (Qualcomm's mkbootimg requires a ramdisk parameter)
 touch "${IMAGES_DIR}/empty-ramdisk"
-
+if [ ! -f "$HOST_DIR/bin/mkbootimg-qcom" ]; then
+    echo "Copying mkbootimg as mkbootimg-qcom"
+    cp board/arduino/arduino-uno-q/mkbootimg "$HOST_DIR/bin/mkbootimg-qcom"
+    chmod +x "$HOST_DIR/bin/mkbootimg-qcom"
+fi
 # Use Qualcomm's skales mkbootimg
 # Parameters based on meta-qcom linux-qcom-bootimg.bbclass and u-boot_%.bbappend
 # - kernel: gzipped U-Boot + raw DTB appended (ABL scans for DTB magic in compressed data)
